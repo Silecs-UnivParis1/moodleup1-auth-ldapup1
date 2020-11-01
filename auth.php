@@ -23,7 +23,6 @@ if (!defined('AUTH_GID_NOGROUP')) {
 require_once($CFG->libdir.'/authlib.php');
 require_once($CFG->libdir.'/ldaplib.php');
 require_once('auth_trivial.php'); // all trivial methods
-require_once($CFG->dirroot . '/local/cohortsyncup1/lib.php');
 
 /**
  * LDAP authentication plugin.
@@ -223,8 +222,6 @@ class auth_plugin_ldapup1 extends auth_plugin_trivial{
         global $CFG, $DB;
 
         print_string('connectingldap', 'auth_ldapup1');
-        $ldaplogid = up1_cohortsync_addlog(null, 'ldap:sync', "since $since");
-        $logmsg = '';
         $ldapconnection = $this->ldap_connect();
 
         $dbman = $DB->get_manager();
@@ -302,7 +299,6 @@ class auth_plugin_ldapup1 extends auth_plugin_trivial{
         if ($count < 1) {
             //print_string('didntgetusersfromldap', 'auth_ldapup1');
        $dbman->drop_table($table);
-            up1_cohortsync_addlog($ldaplogid, 'ldap:sync', 'temp table empty. Exit.');
             exit;
         } else {
             print_string('gotcountrecordsfromldap', 'auth_ldapup1', $count);
@@ -327,7 +323,6 @@ class auth_plugin_ldapup1 extends auth_plugin_trivial{
             }
             unset($all_keys); unset($key);
         } else {
-            $logmsg .= 'updates disabled.  ';
             print_string('noupdatestobedone', 'auth_ldapup1');
             echo "    (updates disabled)\n";
         }
@@ -339,7 +334,6 @@ class auth_plugin_ldapup1 extends auth_plugin_trivial{
                                           array('shibboleth'));
             if (!empty($users)) {
                 print_string('userentriestoupdate', 'auth_ldapup1', count($users));
-                $logmsg .= count($users) . ' updated.  ';
 
                 $transaction = $DB->start_delegated_transaction();
                 $xcount = 0;
@@ -367,7 +361,6 @@ class auth_plugin_ldapup1 extends auth_plugin_trivial{
                 unset($users); // free mem
             }
         } else { // end do updates
-            $logmsg .= '0 updated.  ';
             print_string('noupdatestobedone', 'auth_ldapup1');
             echo "    (empty)\n";
         }
@@ -383,7 +376,6 @@ class auth_plugin_ldapup1 extends auth_plugin_trivial{
 
         if (!empty($add_users)) {
             print_string('userentriestoadd', 'auth_ldapup1', count($add_users));
-            $logmsg .= count($add_users) . ' added.  ';
 
             //** for up1 metadata; cf BEGIN UP1 SILECS
             $sql = "SELECT shortname, id FROM {custom_info_field} WHERE objectname='user' AND shortname like 'up1%'";
@@ -432,7 +424,6 @@ class auth_plugin_ldapup1 extends auth_plugin_trivial{
             unset($add_users); // free mem
         } else {
             print_string('nouserstobeadded', 'auth_ldapup1');
-            $logmsg .= '0 added.  ';
         }
 
 /// User suspension (originally: user removal)
@@ -444,7 +435,6 @@ class auth_plugin_ldapup1 extends auth_plugin_trivial{
 
             if (!empty($remove_users)) {
                 print_string('userentriestoremove', 'auth_ldapup1', count($remove_users));
-                $logmsg .= count($remove_users) . ' suspended/removed.  ';
 
                 foreach ($remove_users as $user) {
                     // AUTH_REMOVEUSER_SUSPEND
@@ -469,7 +459,6 @@ class auth_plugin_ldapup1 extends auth_plugin_trivial{
 
             if (!empty($revive_users)) {
                 print_string('userentriestorevive', 'auth_ldapup1', count($revive_users));
-                $logmsg .= count($revive_users) . ' revived.  ';
 
                 foreach ($revive_users as $user) {
                     $updateuser = new stdClass();
@@ -486,7 +475,6 @@ class auth_plugin_ldapup1 extends auth_plugin_trivial{
 
         $dbman->drop_table($table);
         $this->ldap_close();
-        up1_cohortsync_addlog($ldaplogid, 'ldap:sync', $logmsg);
 
         return true;
     }
