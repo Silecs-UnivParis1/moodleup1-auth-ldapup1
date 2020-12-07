@@ -244,9 +244,11 @@ class auth_plugin_ldapup1 extends auth_plugin_trivial{
         ////
         // prepare some data we'll need
         // GA - $filterAff refers also to accountStatus due to bug M2156
-        $filterAff = '(|(eduPersonAffiliation=teacher)(eduPersonAffiliation=student)(eduPersonAffiliation=staff)(accountStatus=disabled))';
-        // $filterAff = '';
-        // $filterAcc = '(accountStatus=active)';
+        $filterAff = '(|(eduPersonAffiliation=teacher)'
+            . '(eduPersonAffiliation=student)'
+            . '(eduPersonAffiliation=staff)'
+            . '(eduPersonAffiliation=employee)'
+            . '(accountStatus=disabled))';
         $filterAcc = '';
         $filterTime = '(modifyTimestamp>='. $since .')';
 
