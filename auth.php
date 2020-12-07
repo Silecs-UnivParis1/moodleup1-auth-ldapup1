@@ -92,7 +92,7 @@ class auth_plugin_ldapup1 extends auth_plugin_trivial{
      * @return mixed array with no magic quotes or false on error
      */
     function get_userinfo($username) {
-        $extusername = textlib::convert($username, 'utf-8', $this->config->ldapencoding);
+        $extusername = core_text::convert($username, 'utf-8', $this->config->ldapencoding);
 
         $ldapconnection = $this->ldap_connect();
         if(!($user_dn = $this->ldap_find_userdn($ldapconnection, $extusername))) {
@@ -145,9 +145,9 @@ class auth_plugin_ldapup1 extends auth_plugin_trivial{
                     continue; // wrong data mapping!
                 }
                 if (is_array($entry[$value])) {
-                    $newval = textlib::convert($entry[$value][0], $this->config->ldapencoding, 'utf-8');
+                    $newval = core_text::convert($entry[$value][0], $this->config->ldapencoding, 'utf-8');
                 } else {
-                    $newval = textlib::convert($entry[$value], $this->config->ldapencoding, 'utf-8');
+                    $newval = core_text::convert($entry[$value], $this->config->ldapencoding, 'utf-8');
                 }
                 if (!empty($newval)) { // favour ldap entries that are set
                     $ldapval = $newval;
@@ -198,7 +198,7 @@ class auth_plugin_ldapup1 extends auth_plugin_trivial{
      * @param string $username
      */
     function user_exists($username) {
-        $extusername = textlib::convert($username, 'utf-8', $this->config->ldapencoding);
+        $extusername = core_text::convert($username, 'utf-8', $this->config->ldapencoding);
 
         // Returns true if given username exists on ldap
         $users = $this->ldap_get_userlist('('.$this->config->user_attribute.'='.ldap_filter_addslashes($extusername).')');
@@ -285,7 +285,7 @@ class auth_plugin_ldapup1 extends auth_plugin_trivial{
             if ($entry = @ldap_first_entry($ldapconnection, $ldap_result)) {
                 do {
                     $value = @ldap_get_values_len($ldapconnection, $entry, $this->config->user_attribute); // uid ou ...
-                    $value = textlib::convert($value[0], $this->config->ldapencoding, 'utf-8');
+                    $value = core_text::convert($value[0], $this->config->ldapencoding, 'utf-8');
                     $status = @ldap_get_values_len($ldapconnection, $entry, 'accountStatus'); // active ou disabled ou (non-défini)
                     $status = strtolower($status[0]);
                     $this->ldap_bulk_insert($value, $status);
@@ -395,7 +395,7 @@ class auth_plugin_ldapup1 extends auth_plugin_trivial{
                 $user->mnethostid = $CFG->mnet_localhost_id;
                 // get_userinfo_asobj() might have replaced $user->username with the value
                 // from the LDAP server (which can be mixed-case). Make sure it's lowercase
-                $user->username = trim(textlib::strtolower($user->username));
+                $user->username = trim(core_text::strtolower($user->username));
                 if (empty($user->lang)) {
                     $user->lang = $CFG->lang;
                 }
@@ -518,7 +518,7 @@ class auth_plugin_ldapup1 extends auth_plugin_trivial{
         global $CFG, $DB;
 
         // Just in case check text case
-        $username = trim(textlib::strtolower($username));
+        $username = trim(core_text::strtolower($username));
 
         // Get the current user record
         $user = $DB->get_record('user', array('username'=>$username, 'mnethostid'=>$CFG->mnet_localhost_id));
@@ -579,7 +579,7 @@ class auth_plugin_ldapup1 extends auth_plugin_trivial{
     function ldap_bulk_insert($username, $status) {
         global $DB, $CFG;
 
-        $username = textlib::strtolower($username); // usernames are __always__ lowercase.
+        $username = core_text::strtolower($username); // usernames are __always__ lowercase.
         $DB->insert_record_raw('tmp_extuser', array('username' => $username,
                                                     'mnethostid' => $CFG->mnet_localhost_id,
                                                     'accountstatus' => $status), false, true);
@@ -657,13 +657,13 @@ class auth_plugin_ldapup1 extends auth_plugin_trivial{
         $moodleattributes = array();
         foreach ($this->userfields as $field) {
             if (!empty($this->config->{"field_map_$field"})) {
-                $moodleattributes[$field] = textlib::strtolower(trim($this->config->{"field_map_$field"}));
+                $moodleattributes[$field] = core_text::strtolower(trim($this->config->{"field_map_$field"}));
                 if (preg_match('/,/', $moodleattributes[$field])) {
                     $moodleattributes[$field] = explode(',', $moodleattributes[$field]); // split ?
                 }
             }
         }
-        $moodleattributes['username'] = textlib::strtolower(trim($this->config->user_attribute));
+        $moodleattributes['username'] = core_text::strtolower(trim($this->config->user_attribute));
 
         // UP1 - SILECS addition
         $customattrs = array('eduPersonPrimaryAffiliation', 'supannEntiteAffectationPrincipale');
@@ -723,7 +723,7 @@ class auth_plugin_ldapup1 extends auth_plugin_trivial{
 
             // Add found users to list
             for ($i = 0; $i < count($users); $i++) {
-                $extuser = textlib::convert($users[$i][$this->config->user_attribute][0],
+                $extuser = core_text::convert($users[$i][$this->config->user_attribute][0],
                                              $this->config->ldapencoding, 'utf-8');
                 array_push($fresult, $extuser);
             }
@@ -809,7 +809,7 @@ class auth_plugin_ldapup1 extends auth_plugin_trivial{
 
         // Try to remove duplicates before storing the contexts (to avoid problems in sync_users()).
         $config->contexts = explode(';', $config->contexts);
-        $config->contexts = array_map(create_function('$x', 'return textlib::strtolower(trim($x));'),
+        $config->contexts = array_map(create_function('$x', 'return core_text::strtolower(trim($x));'),
                                       $config->contexts);
         $config->contexts = implode(';', array_unique($config->contexts));
 
@@ -817,8 +817,8 @@ class auth_plugin_ldapup1 extends auth_plugin_trivial{
         set_config('host_url', trim($config->host_url), $this->pluginconfig);
         set_config('ldapencoding', trim($config->ldapencoding), $this->pluginconfig);
         set_config('contexts', $config->contexts, $this->pluginconfig);
-        set_config('user_type', textlib::strtolower(trim($config->user_type)), $this->pluginconfig);
-        set_config('user_attribute', textlib::strtolower(trim($config->user_attribute)), $this->pluginconfig);
+        set_config('user_type', core_text::strtolower(trim($config->user_type)), $this->pluginconfig);
+        set_config('user_attribute', core_text::strtolower(trim($config->user_attribute)), $this->pluginconfig);
         set_config('search_sub', $config->search_sub, $this->pluginconfig);
         set_config('opt_deref', $config->opt_deref, $this->pluginconfig);
         set_config('preventpassindb', $config->preventpassindb, $this->pluginconfig);
@@ -826,7 +826,7 @@ class auth_plugin_ldapup1 extends auth_plugin_trivial{
         set_config('bind_pw', $config->bind_pw, $this->pluginconfig);
         set_config('ldap_version', $config->ldap_version, $this->pluginconfig);
         set_config('objectclass', trim($config->objectclass), $this->pluginconfig);
-        set_config('memberattribute', textlib::strtolower(trim($config->memberattribute)), $this->pluginconfig);
+        set_config('memberattribute', core_text::strtolower(trim($config->memberattribute)), $this->pluginconfig);
         set_config('memberattribute_isdn', $config->memberattribute_isdn, $this->pluginconfig);
         set_config('removeuser', $config->removeuser, $this->pluginconfig);
         set_config('sync_condition', trim($config->sync_condition), $this->pluginconfig);
