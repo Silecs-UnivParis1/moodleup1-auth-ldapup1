@@ -5,6 +5,12 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
 
+/**
+ * Cette bibliothèque contient des méthodes uniquement nécessaires à db/install.php et db/upgrade.php
+ * Elle n'a pas été mise à jour pour Moodle 3.9 (2020)
+ * GA.
+ */
+
 function up1_user_metadata() {
 
     $res = array(

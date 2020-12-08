@@ -10,7 +10,7 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-require_once(__DIR__ . '/../locallib.php');
+require_once(__DIR__ . '/../obsolete/locallib.php');
 
 function xmldb_auth_ldapup1_install() {
     global $CFG, $DB;
