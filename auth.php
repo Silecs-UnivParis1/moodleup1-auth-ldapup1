@@ -1,10 +1,12 @@
 <?php
 /**
  * @package    auth_ldapup1
- * @copyright  2012-2020 Silecs {@link http://www.silecs.info/societe}
+ * @copyright  2012-2021 Silecs {@link http://www.silecs.info/societe}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * derived from official auth_ldap
  */
+
+use \local_cohortsyncup1\synchronize;
 
 if (!defined('MOODLE_INTERNAL')) {
     die('Direct access to this script is forbidden.');    ///  It must be included from a Moodle page
@@ -218,6 +220,8 @@ class auth_plugin_ldapup1 extends auth_plugin_trivial{
      */
     function sync_users($do_updates=true, $since=false, $output='file') {
         global $CFG, $DB;
+
+        $cohortlogid = synchronize::add_log(null, 'ldap:sync', "since $since");
 
         print_string('connectingldap', 'auth_ldapup1');
         $ldapconnection = $this->ldap_connect();
@@ -475,6 +479,7 @@ class auth_plugin_ldapup1 extends auth_plugin_trivial{
 
         $dbman->drop_table($table);
         $this->ldap_close();
+        synchronize::add_log($cohortlogid, 'ldap:sync', '');
 
         return true;
     }
