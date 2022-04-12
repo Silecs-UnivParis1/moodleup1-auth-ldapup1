@@ -302,8 +302,8 @@ class auth_plugin_ldapup1 extends auth_plugin_trivial{
         $count = $DB->count_records_sql('SELECT COUNT(username) AS count, 1 FROM {tmp_extuser}');
         if ($count < 1) {
             //print_string('didntgetusersfromldap', 'auth_ldapup1');
-       $dbman->drop_table($table);
-            exit;
+            $dbman->drop_table($table);
+            return false; 
         } else {
             print_string('gotcountrecordsfromldap', 'auth_ldapup1', $count);
         }
