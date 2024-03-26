@@ -249,7 +249,8 @@ class auth_plugin_ldapup1 extends auth_plugin_trivial{
         $filterAff = '(|(eduPersonAffiliation=teacher)'
             . '(eduPersonAffiliation=student)'
             . '(eduPersonAffiliation=staff)'
-            . '(eduPersonAffiliation=employee)'
+            . '(eduPersonAffiliation=faculty)'
+            . '(supannCodePopulation={SUPANN}TE*)'
             . '(accountStatus=disabled))';
         $filterAcc = '';
         $filterTime = '(modifyTimestamp>='. $since .')';
@@ -372,10 +373,10 @@ class auth_plugin_ldapup1 extends auth_plugin_trivial{
         // Find users missing in DB that are in LDAP
         // and gives me a nifty object I don't want.
         // note: we do not care about deleted accounts anymore, this feature was replaced by suspending to nologin auth plugin
-        $sql = 'SELECT e.id, e.username
+        $sql = "SELECT e.id, e.username
                   FROM {tmp_extuser} e
                   LEFT JOIN {user} u ON (e.username = u.username AND u.mnethostid = e.mnethostid)
-                 WHERE u.id IS NULL';
+                 WHERE u.id IS NULL AND e.accountstatus != 'disabled' ";
         $add_users = $DB->get_records_sql($sql);
 
         if (!empty($add_users)) {
