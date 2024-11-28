@@ -31,6 +31,18 @@ class auth_plugin_ldapup1 extends auth_plugin_trivial{
 
     protected $verbosity = 1;
 
+    /** @var string */
+    protected $roleauth;
+
+    /** @var string */
+    public $pluginconfig;
+
+    /** @var LDAP\Connection LDAP connection. */
+    protected $ldapconnection;
+
+    /** @var int */
+    protected $ldapconns = 0;
+
     /**
      * Init plugin config from database settings depending on the plugin auth type.
      */
