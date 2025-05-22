@@ -3,7 +3,7 @@
  * Plugin upgrade code.
  *
  * @package    auth_ldapup1
- * @copyright  2012-2013 Silecs {@link http://www.silecs.info/societe}
+ * @copyright  2012-2025 Silecs {@link http://www.silecs.info/societe}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -56,6 +56,11 @@ function xmldb_auth_ldapup1_upgrade($oldversion) {
         }
     }
 
+    if ($oldversion < 2025052200 ) {
+        echo "Mise à jour de la table config_plugins :<br />\n";
+        $sql = "UPDATE {config_plugins} SET plugin = 'auth_ldapup1' WHERE plugin = 'auth/ldapup1'";
+        $DB->execute($sql);
+    }
 
     return true;
 }

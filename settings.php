@@ -18,8 +18,10 @@
  * Admin settings and defaults.
  *
  * @package auth_ldapup1
- * @copyright  silecs
+ * @copyright  2025-2025 Silecs d'après Moodle 4.5
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * 
+ * 2025-05-22 CG+GA fichier repris de auth_ldap et adapté pour auth_ldapup1
  */
 
 defined('MOODLE_INTERNAL') || die;
@@ -177,7 +179,7 @@ if ($ADMIN->fulltree) {
         $settings->add(new admin_setting_configselect('auth_ldapup1/removeuser',
                 new lang_string('auth_remove_user_key', 'auth'),
                 new lang_string('auth_remove_user', 'auth'), AUTH_REMOVEUSER_SUSPEND, $deleteopt));
-        
+
 
 /**
         // Force Password change Header.
@@ -208,9 +210,7 @@ if ($ADMIN->fulltree) {
         $settings->add(new admin_setting_configtext('auth_ldap/changepasswordurl',
                 get_string('auth_ldap_changepasswordurl_key', 'auth_ldap'),
                 get_string('changepasswordhelp', 'auth'), '', PARAM_URL));
-**/
 
-/**
         // Password Expiration Header.
         $settings->add(new admin_setting_heading('auth_ldap/passwordexpire',
                 new lang_string('auth_ldap_passwdexpire_settings', 'auth_ldap'), ''));
@@ -254,8 +254,7 @@ if ($ADMIN->fulltree) {
         $settings->add(new auth_ldap_admin_setting_special_lowercase_configtext('auth_ldap/graceattr',
                 get_string('auth_ldap_gracelogin_key', 'auth_ldap'),
                 get_string('auth_ldap_graceattr_desc', 'auth_ldap'), '', PARAM_RAW));
-**/
-/**
+
         // User Creation.
         $settings->add(new admin_setting_heading('auth_ldap/usercreation',
                 new lang_string('auth_user_create', 'auth'), ''));
