@@ -24,6 +24,7 @@ require_once($CFG->libdir.'/authlib.php');
 require_once($CFG->libdir.'/ldaplib.php');
 require_once('auth_trivial.php'); // all trivial methods
 
+
 /**
  * LDAP authentication plugin.
  */
@@ -47,7 +48,7 @@ class auth_plugin_ldapup1 extends auth_plugin_trivial{
      * Init plugin config from database settings depending on the plugin auth type.
      */
     function init_plugin($authtype) {
-        $this->pluginconfig = 'auth/ldapup1';
+         $this->pluginconfig = 'auth_'.$authtype;
         $this->config = get_config($this->pluginconfig);
         if (empty($this->config->ldapencoding)) {
             $this->config->ldapencoding = 'utf-8';
@@ -82,7 +83,7 @@ class auth_plugin_ldapup1 extends auth_plugin_trivial{
         $this->roleauth = 'auth_ldapup1';
         $this->errorlogtag = '[AUTH LDAPUP1] ';
         $this->init_plugin($this->authtype);
-        $this->config->{'field_map_emailstop'} = 'accountstatus';
+        //$this->config->{'field_map_emailstop'} = 'accountstatus';
     }
 
     /**
@@ -748,108 +749,6 @@ class auth_plugin_ldapup1 extends auth_plugin_trivial{
         $this->ldap_close();
         return $fresult;
     }
-
-
-    /**
-     * Prints a form for configuring this authentication plugin.
-     *
-     * This function is called from admin/auth.php, and outputs a full page with
-     * a form for configuring this plugin.
-     *
-     * @param array $page An object containing all the data for this page.
-     */
-    function config_form($config, $err, $user_fields) {
-        global $CFG, $OUTPUT;
-
-        if (!function_exists('ldap_connect')) { // Is php-ldap really there?
-            echo $OUTPUT->notification(get_string('auth_ldapup1_noextension', 'auth_ldapup1'));
-            return;
-        }
-
-        include($CFG->dirroot.'/auth/ldapup1/config.html'); //** @todo clean or not ?
-    }
-
-    /**
-     * Processes and stores configuration data for this authentication plugin.
-     */
-    function process_config($config) {
-        // Set to defaults if undefined
-        if (!isset($config->host_url)) {
-             $config->host_url = '';
-        }
-        if (empty($config->ldapencoding)) {
-         $config->ldapencoding = 'utf-8';
-        }
-        if (!isset($config->contexts)) {
-             $config->contexts = '';
-        }
-        if (!isset($config->user_type)) {
-             $config->user_type = 'default';
-        }
-        if (!isset($config->user_attribute)) {
-             $config->user_attribute = '';
-        }
-        if (!isset($config->search_sub)) {
-             $config->search_sub = '';
-        }
-        if (!isset($config->opt_deref)) {
-             $config->opt_deref = LDAP_DEREF_NEVER;
-        }
-        if (!isset($config->preventpassindb)) {
-             $config->preventpassindb = 0;
-        }
-        if (!isset($config->bind_dn)) {
-            $config->bind_dn = '';
-        }
-        if (!isset($config->bind_pw)) {
-            $config->bind_pw = '';
-        }
-        if (!isset($config->ldap_version)) {
-            $config->ldap_version = '3';
-        }
-        if (!isset($config->objectclass)) {
-            $config->objectclass = '';
-        }
-        if (!isset($config->memberattribute)) {
-            $config->memberattribute = '';
-        }
-        if (!isset($config->memberattribute_isdn)) {
-            $config->memberattribute_isdn = '';
-        }
-        if (!isset($config->removeuser)) {
-            $config->removeuser = AUTH_REMOVEUSER_KEEP;
-        }
-        if (!isset($config->sync_condition)) {
-            $config->sync_condition = '';
-        }
-
-        // Try to remove duplicates before storing the contexts (to avoid problems in sync_users()).
-        $config->contexts = explode(';', $config->contexts);
-        $config->contexts = array_map(create_function('$x', 'return core_text::strtolower(trim($x));'),
-                                      $config->contexts);
-        $config->contexts = implode(';', array_unique($config->contexts));
-
-        // Save settings
-        set_config('host_url', trim($config->host_url), $this->pluginconfig);
-        set_config('ldapencoding', trim($config->ldapencoding), $this->pluginconfig);
-        set_config('contexts', $config->contexts, $this->pluginconfig);
-        set_config('user_type', core_text::strtolower(trim($config->user_type)), $this->pluginconfig);
-        set_config('user_attribute', core_text::strtolower(trim($config->user_attribute)), $this->pluginconfig);
-        set_config('search_sub', $config->search_sub, $this->pluginconfig);
-        set_config('opt_deref', $config->opt_deref, $this->pluginconfig);
-        set_config('preventpassindb', $config->preventpassindb, $this->pluginconfig);
-        set_config('bind_dn', trim($config->bind_dn), $this->pluginconfig);
-        set_config('bind_pw', $config->bind_pw, $this->pluginconfig);
-        set_config('ldap_version', $config->ldap_version, $this->pluginconfig);
-        set_config('objectclass', trim($config->objectclass), $this->pluginconfig);
-        set_config('memberattribute', core_text::strtolower(trim($config->memberattribute)), $this->pluginconfig);
-        set_config('memberattribute_isdn', $config->memberattribute_isdn, $this->pluginconfig);
-        set_config('removeuser', $config->removeuser, $this->pluginconfig);
-        set_config('sync_condition', trim($config->sync_condition), $this->pluginconfig);
-
-        return true;
-    }
-
 
     /**
      * Connect to the LDAP server, using the plugin configured
